@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <style>
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+        .scrollable-content 
+        {
+            max-height: calc(100% - 20px);
+            /* Adjusted maximum height */
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+
+        #main-heading {
+            position: relative;
+            width: 100%;
+            background-color: #0a0909;
+            z-index: 1000;
+            padding: 10px;
+        }
+
+        .container-fluid {
+            height: 100%;
+            padding-top: 0px;
+        }
+
+        .row {
+            height: 100%;
+        }
+
+        #user-sidebar {
+            height: 100%;
+            background-color: #393a3c;
+            padding: 20px;
+        }
+
+        #profile-pic {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            margin-bottom: 10px;
+        }
+
+        #user-info {
+            text-align: center;
+            color: #333333;
+        }
+
+        #content-section {
+            height: 100%;
+            background-color: #df0707;
+            padding: 20px;
+            padding-bottom: 50px;
+            
+        }
+        #username{
+            color: white;
+            text-align: center;
+        }
+        .card-header {
+            background-color: #cad01cc2;
+            color: #ffffff;
+        }
+
+        .image-preview {
+            width: 100px;
+            height: 60px;
+            overflow: hidden;
+            margin-right: 10px;
+            background-color: #0a0909;
+        }
+
+        .image-preview img {
+            width: 100%;
+            height: auto;
+            object-fit: cover;
+        }
+
+        .image-info {
+            flex: 1;
+        }
+
+        .button-section {
+            text-align: right;
+        }
+
+        .btn {
+            margin-left: 5px;
+        }
+    </style>
+    <title>Your Page Title</title>
+</head>
+
+<body class="row">
+    <div id="main-heading">
+        <h1 class="text-center text-light">Welcome: <%=username%></h1>
+    </div>
+
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-2" id="user-sidebar">
+                <div>
+                    <div id="profile-pic" class="image-preview">
+                        <!-- You can replace the source with the actual profile picture URL -->
+                        <img src="https://scontent.frdp1-2.fna.fbcdn.net/v/t39.30808-6/290496233_808802003881839_8707127559745044958_n.jpg?_nc_cat=108&ccb=1-7&_nc_sid=efb6e6&_nc_ohc=w-hiLwWqaTcAX_94S-W&_nc_ht=scontent.frdp1-2.fna&oh=00_AfDN6DUcbFt2YjiIiNYExLeMqFZajUzK15PIZ6NqYHTKHg&oe=65BAB29E" alt="Profile Pic">
+                    </div>
+                    <p id="username"><strong><%=username%></strong></p>
+                </div>
+                <div id="user-info">
+                    
+                    <!-- Add more user information as needed -->
+                </div>
+            </div>
+
+            <div class="col-10 scrollable-content" id="content-section">
+                <div class="card mt-3">
+                    <div class="card-header">
+                        <h2>Image Upload</h2>
+                    </div>
+                    <div class="card-body mt-3">
+                        <form action="/homepage/upload" method="post" enctype="multipart/form-data">
+                            <div class="form-group">
+                                <label for="image">Choose Image</label>
+                                <input type="file" class="form-control-file" id="image" name="image" accept="image/*"
+                                    required>
+                            </div>
+                            <input type="hidden" id="username" name="username" value="<%= username %>">
+                            <button type="submit" class="btn btn-primary">Upload</button>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="card mt-3">
+                    <div class="card-header">
+                        <h2>Directory Content</h2>
+                    </div>
+
+                    <div>
+                        <% images.forEach(image=> { %>
+                            <div class="card-body d-flex imagePath">
+                                <div class="image-preview">
+                                    <img src="<%= username + '/' + image.filename %>" alt="<%= image.filename %>">
+                                </div>
+                                <div class="card-body image-info">
+                                    <div class="file-info-section">
+                                        <p>Filename: <%= image.filename %></p>
+                                        <p>Filepath: <%= image.path %></p>
+                                        <p>Size: <%= image.size %> bytes</p>
+                                        <p>Last Modified: <%= image.lastModified %></p>
+                                    </div>
+                                    <div class="button-section">
+                                        <form action="/homepage/view" method="get" style="display: inline;">
+                                            <input type="hidden" name="imagePath"
+                                                value="<%= encodeURIComponent(username + '/' + image.filename) %>">
+                                            <button type="submit" class="btn btn-primary">View</button>
+                                        </form>
+                                        <form action="/homepage/download" method="get" style="display: inline;">
+                                            <input type="hidden" name="imagePath"
+                                            value="<%= encodeURIComponent(username + '/' + image.filename) %>">
+                                            <button type="submit" class="btn btn-primary">Download</button>
+                                        </form>
+                                        <form id="deleteForm_<%= image.filename %>" action="/homepage/delete" method="post"
+                                            style="display: inline;">
+                                            <input type="hidden" name="imagePath"
+                                            value="<%=encodeURIComponent(username + '/' + image.filename)%>">
+                                            <button type="button" class="btn btn-danger"
+                                                onclick="confirmDelete('<%= image.filename %>')">Delete</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                            <% }); %>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+
+    <script>
+        function confirmDelete(filename) {
+            const confirmation = confirm(`Are you sure you want to delete ${filename}?`);
+            if (confirmation) {
+                const formId = `deleteForm_${filename}`;
+                const form = document.getElementById(formId);
+    
+                if (form) {
+                    form.submit();
+                } else {
+                    console.error(`Form with id ${formId} not found.`);
+                }
+            }
+        }
+    </script>
+    
+</body>
+
+</html>
